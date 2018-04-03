@@ -22,8 +22,8 @@ start:
 	
 	rep
 	movsw
-
-	jmp  0x9000:go
+	
+	jmp 0x9000:go
 
 	
 go:
@@ -35,11 +35,11 @@ go:
 
 	call clear_screen
 	
+	
 	mov esi,1
 	mov di,0x0200
 	mov ecx,4
 	call load_module
-
 
 
 	mov  si,msg1
@@ -49,12 +49,13 @@ go:
 	mov ax,0x1000
 	mov es,ax
 	mov di,0
-	mov ecx,7
+	mov ecx,30
 	call load_module
 
 	mov ax,cs
 	mov es,ax
 	
+	jmp $	
 	mov ax,ROOT_DEV
 	cmp ax,0
 	jne root_defined
@@ -69,11 +70,6 @@ root_defined:
 	call print_message
 	
 next:
-	
-
-	jmp $
-
-	
 	jmp 0x9020:0
 
 
