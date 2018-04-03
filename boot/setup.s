@@ -1,6 +1,9 @@
 
 	bits 16
 	org 0x90200
+ 
+	
+
 
 entry:
 	mov ax,0x9000
@@ -85,19 +88,17 @@ do_move:
 end_move:
 	mov ax,0x9020
 	mov ds,ax
+
+
 	lidt [idt_48]
-	lgdt [gdt_48]
-
-
-	call empty_8042
+	;call empty_8042
 	
-	mov al,0xd1
-	out 0x64,al
-	call empty_8042
-
-	mov al,0xdf
-	out 0x60,al
-	call empty_8042
+;	mov al,0xd1
+;	out 0x64,al
+;	call empty_8042
+;	mov al,0xdf
+;	out 0x60,al
+;	call empty_8042
 
 	mov al,0x11
 	out 0x20,al
@@ -136,18 +137,21 @@ end_move:
 
 	out 0xa1,al
 
+	lgdt [gdt_48]
+	
+	cli
 
 	mov eax,cr0
 	or eax,0x01
 	mov cr0,eax
-	
+
 	jmp 0x08:go
 
+
+	bits 32
 go:
 	
 	jmp $
-
-
 	
 ;---------------
 ;empty_8042
@@ -160,27 +164,24 @@ empty_8042:
 	ret
 
 
-
-
-
 ;-------------
 ;idt_48
 ;-------------
 idt_48	dw 0
-	dq 0
+	dd 0
+
+
+;-------------------
+;gdt desc
+;-------------------
+gdt_base 	dq 0x0000000000000000
+		dq 0x00cf9a090000ffff ; kernel code
+		dq 0x00cf92090000ffff ;kernel data
+
+gdt_len	equ ($ - gdt_base)
+
+gdt_48 	dw (gdt_len - 1)
+	dd 0x12345678 
 
 
 
-gdt:
-	dq 0x0000000000000000
-	dq 0x00c09a00000007ff ; kernel code
-	dq 0x00c09200000007ff ;kernel data
-
-	
-
-;-------------
-;gdt_48
-;-------------
-gdt_48	dw 0x800
-	dw 512+gdt
-	dw 0x9

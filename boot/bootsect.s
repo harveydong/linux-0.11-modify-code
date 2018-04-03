@@ -10,20 +10,23 @@ start:
 
 	
 	mov ax,0x7c0
-	mov es,ax
+	mov ds,ax
 	
 	mov ax,0x9000
-	mov ds,ax
+	mov es,ax
 
 	sub si,si
 	sub di,di
-
+	mov di,0x7c00
 	mov cx,256
 	
 	rep
 	movsw
 
-	jmp  0x9000:go
+	mov ax,0x9000
+	push ax
+	push go
+	retf
 
 	
 go:
@@ -31,7 +34,7 @@ go:
 	mov ds,ax
 	mov es,ax
 	mov ss,ax
-	mov sp,0xff00
+	mov sp,0xffff
 
 	call clear_screen
 	
@@ -70,8 +73,6 @@ root_defined:
 	
 next:
 	
-
-	jmp $
 
 	
 	jmp 0x9020:0
@@ -161,12 +162,12 @@ read_sector:
 	pusha
 	push es
 	push ds
-	pop es
 	
 do_read_sector_ext:
 	call read_sector_ext
 	mov al,0
 do_read_sector_done:
+	pop ds
 	pop es
 	popa
 	movzx ax,al
