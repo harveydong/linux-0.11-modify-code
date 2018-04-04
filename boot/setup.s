@@ -1,11 +1,12 @@
 
 	bits 16
-	org 0x90200
+	org 0x90200 
  
 	
 
 
 entry:
+
 	mov ax,0x9000
 	mov ds,ax
 	mov ah,0x03
@@ -90,15 +91,14 @@ end_move:
 	mov ds,ax
 
 
-	lidt [idt_48]
-	;call empty_8042
+	call empty_8042
 	
-;	mov al,0xd1
-;	out 0x64,al
-;	call empty_8042
-;	mov al,0xdf
-;	out 0x60,al
-;	call empty_8042
+	mov al,0xd1
+	out 0x64,al
+	call empty_8042
+	mov al,0xdf
+	out 0x60,al
+	call empty_8042
 
 	mov al,0x11
 	out 0x20,al
@@ -137,7 +137,20 @@ end_move:
 
 	out 0xa1,al
 
-	lgdt [gdt_48]
+; lidt ds:reg/mem
+	mov ax,cs
+	mov ds,ax
+	mov bx,ax
+	shl ebx,4
+	
+	mov eax,idt_48
+
+	sub eax,ebx
+	lidt [eax]
+
+	mov eax,gdt_48
+	sub eax,ebx
+	lgdt [eax]
 	
 	cli
 
@@ -145,11 +158,17 @@ end_move:
 	or eax,0x01
 	mov cr0,eax
 
+	
 	jmp 0x08:go
 
 
 	bits 32
 go:
+	
+	mov ax,0x10
+	mov ds,ax
+	mov es,ax
+	mov ss,ax
 	
 	jmp $
 	
@@ -164,11 +183,16 @@ empty_8042:
 	ret
 
 
+;-------------------
+;idt_base
+;-------------------
+idt_base dq 0
+
 ;-------------
 ;idt_48
 ;-------------
-idt_48	dw 0
-	dd 0
+idt_48	dw 0xfff
+	dd idt_base
 
 
 ;-------------------
@@ -181,7 +205,7 @@ gdt_base 	dq 0x0000000000000000
 gdt_len	equ ($ - gdt_base)
 
 gdt_48 	dw (gdt_len - 1)
-	dd 0x12345678 
+	dd gdt_base 
 
 
 

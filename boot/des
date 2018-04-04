@@ -60,13 +60,13 @@
 00090296  EBE9              jmp short 0x281
 00090298  B82090            mov ax,0x9020
 0009029B  8ED8              mov ds,ax
-0009029D  E86C00            call word 0x30c
+0009029D  E89000            call word 0x330
 000902A0  B0D1              mov al,0xd1
 000902A2  E664              out 0x64,al
-000902A4  E86500            call word 0x30c
+000902A4  E88900            call word 0x330
 000902A7  B0DF              mov al,0xdf
 000902A9  E660              out 0x60,al
-000902AB  E85E00            call word 0x30c
+000902AB  E88200            call word 0x330
 000902AE  B011              mov al,0x11
 000902B0  E620              out 0x20,al
 000902B2  EB00              jmp short 0x2b4
@@ -100,33 +100,48 @@
 000902EA  B0FF              mov al,0xff
 000902EC  E621              out 0x21,al
 000902EE  E6A1              out 0xa1,al
-000902F0  0F011E1703        lidt [0x317]
-000902F5  0F01163503        lgdt [0x335]
-000902FA  FA                cli
-000902FB  0F20C0            mov eax,cr0
-000902FE  6683C801          or eax,byte +0x1
-00090302  0F22C0            mov cr0,eax
-00090305  EA0A030800        jmp word 0x8:0x30a
-0009030A  EBFE              jmp short 0x30a
-0009030C  EB00              jmp short 0x30e
-0009030E  EB00              jmp short 0x310
-00090310  E464              in al,0x64
-00090312  A802              test al,0x2
-00090314  75F6              jnz 0x30c
-00090316  C3                ret
-00090317  0000              add [bx+si],al
-00090319  0000              add [bx+si],al
-0009031B  0000              add [bx+si],al
-0009031D  0000              add [bx+si],al
-0009031F  0000              add [bx+si],al
-00090321  0000              add [bx+si],al
-00090323  0000              add [bx+si],al
-00090325  FF                db 0xff
-00090326  FF00              inc word [bx+si]
-00090328  0009              add [bx+di],cl
-0009032A  9ACF00FFFF        call word 0xffff:0xcf
-0009032F  0000              add [bx+si],al
-00090331  0992CF00          or [bp+si+0xcf],dx
-00090335  17                pop ss
-00090336  007856            add [bx+si+0x56],bh
-00090339  3412              xor al,0x12
+000902F0  8CC8              mov ax,cs
+000902F2  8ED8              mov ds,ax
+000902F4  89C3              mov bx,ax
+000902F6  66C1E304          shl ebx,byte 0x4
+000902FA  66B843030900      mov eax,0x90343
+00090300  6629D8            sub eax,ebx
+00090303  670F0118          lidt [eax]
+00090307  66B861030900      mov eax,0x90361
+0009030D  6629D8            sub eax,ebx
+00090310  670F0110          lgdt [eax]
+00090314  FA                cli
+00090315  0F20C0            mov eax,cr0
+00090318  6683C801          or eax,byte +0x1
+0009031C  0F22C0            mov cr0,eax
+0009031F  EA24030800        jmp word 0x8:0x324
+00090324  66B810008ED8      mov eax,0xd88e0010
+0009032A  8EC0              mov es,ax
+0009032C  8ED0              mov ss,ax
+0009032E  EBFE              jmp short 0x32e
+00090330  EB00              jmp short 0x332
+00090332  EB00              jmp short 0x334
+00090334  E464              in al,0x64
+00090336  A802              test al,0x2
+00090338  75F6              jnz 0x330
+0009033A  C3                ret
+0009033B  0000              add [bx+si],al
+0009033D  0000              add [bx+si],al
+0009033F  0000              add [bx+si],al
+00090341  0000              add [bx+si],al
+00090343  FF0F              dec word [bx]
+00090345  3B03              cmp ax,[bp+di]
+00090347  0900              or [bx+si],ax
+00090349  0000              add [bx+si],al
+0009034B  0000              add [bx+si],al
+0009034D  0000              add [bx+si],al
+0009034F  0000              add [bx+si],al
+00090351  FF                db 0xff
+00090352  FF00              inc word [bx+si]
+00090354  0009              add [bx+di],cl
+00090356  9ACF00FFFF        call word 0xffff:0xcf
+0009035B  0000              add [bx+si],al
+0009035D  0992CF00          or [bp+si+0xcf],dx
+00090361  17                pop ss
+00090362  004903            add [bx+di+0x3],cl
+00090365  0900              or [bx+si],ax
